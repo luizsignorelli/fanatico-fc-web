@@ -1,0 +1,12 @@
+Olá <b><%= session[:user][:name] %></b>, bem vindo ao Fanático FC.
+<% if @user.team %>
+    <br/>Seu time é <%= @user.team %>.
+<% else %>
+    <form method="post" action= <%= url('/choose_team') %> >
+
+      <label for="team">Qual seu time? </label>
+      <input id="team" name="team" type="text"/> <br/>
+      <%= teams_options %>
+      <input type="submit" value="Escolher"/>
+    </form>
+<% end %>
