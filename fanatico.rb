@@ -2,6 +2,7 @@
 
 require 'omniauth/oauth'
 require './user'
+require './teams'
 
 use Rack::Session::Pool
 
@@ -15,7 +16,10 @@ end
 OmniAuth.config.full_host = 'http://apps.facebook.com/fanatico-fc'
 
 get '/' do
-  @teams = { :americamg => { :name => "América-MG" }, :atleticomg => { :name => "Atlético-MG" } }
+  if !session[:user]
+    redirect to("/auth/facebook") and return
+  end
+  @teams = Teams.all
   @user = User.find(:facebook_id => session[:user][:id]).first
   erb :index
 end
@@ -27,6 +31,12 @@ post '/' do
     redirect to("/")
   end
 end
+
+get '/user/team_feed' do
+  @user = User.find(:facebook_id => session[:user][:id]).first
+  @user.team_feed
+end
+
 
 post '/choose_team' do
   @user = User.find(:facebook_id => session[:user][:id]).first
@@ -58,8 +68,9 @@ end
 
 helpers do
   def teams_options
-    html = "<select>"
-    @teams.each_pair do |key,value|
+    html = "<select name='team' id='teams' data-placeholder='Qual é o seu time?' style='width:350px;'>"
+    html << "<option value=''></option>"
+    Teams.all.each_pair do |key,value|
       html << "<option value='#{key}'>#{value[:name]}</option>"
     end
 

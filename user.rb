@@ -10,4 +10,12 @@ class User < Ohm::Model
     end
     user
   end
+
+  def team_name
+    Teams.all[team.to_sym][:name]
+  end
+
+  def team_feed
+    Teams.all[team.to_sym][:feed]
+  end
 end
